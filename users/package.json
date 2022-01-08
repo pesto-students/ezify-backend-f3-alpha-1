@@ -7,10 +7,11 @@
     "start:dev": "nodemon",
     "build": "rimraf ./build && tsc && cp package.json build/ && cp package-lock.json build/",
     "start": "npm run build && node build/server.js",
+    "buildtype": "npx -p typescript tsc src/**/*.js --declaration --allowJs --emitDeclarationOnly --outDir types",
     "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'tests/**/*.ts' --timeout 10000"
   },
   "dependencies": {
-    "@ezzify/common": "^1.0.7",
+    "@ezzify/common": "^1.0.20",
     "@sendgrid/mail": "^7.6.0",
     "aws-sdk": "^2.1049.0",
     "axios": "^0.24.0",

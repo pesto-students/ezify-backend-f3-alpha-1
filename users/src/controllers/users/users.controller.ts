@@ -4,11 +4,7 @@ import {
   Controller,
   validationMiddleware,
   sanitizeBody,
-  Security,
   SuccessResponse,
-  SuccessMsgResponse,
-  ApiError,
-  NotFoundError,
   UsersDto,
   UserBodyInterface,
   UsersProps,
@@ -16,21 +12,25 @@ import {
   VerifyDto,
   verifyProps,
   VerifyInterface,
-  UpdateUsersProps,
-  UpdateUsersDto,
   upload,
   auth,
 } from "@ezzify/common/build";
+
+import { UpdateUsersDto } from "../services/updateUser/updateUser.dto";
+import { UpdateUsersProps } from "../services/updateUser/updateUser.props";
+import { UpdatedUsersDB } from "../services/updateUser/users.db";
 
 export class UserController extends BaseController implements Controller {
   public path = "/users";
   public router = express.Router();
 
   private db: UsersDB;
+  private userdb: UpdatedUsersDB;
 
   constructor() {
     super();
     this.db = new UsersDB();
+    this.userdb = new UpdatedUsersDB();
     this._initializeRoutes();
   }
 
@@ -57,12 +57,11 @@ export class UserController extends BaseController implements Controller {
   });
 
   private updateUser = this.catchAsyn(async (req: any, res: express.Response, next: express.NextFunction) => {
-
     req.body = sanitizeBody(UpdateUsersProps, req.body);
 
     let newDetails = { ...req.body, profileImage: req?.file?.location };
 
-    const result = await this.db.updateUserService(newDetails, req.user._id, res);
+    const result = await this.userdb.updateUserService(newDetails, req.user._id, res);
     new SuccessResponse("success", result).send(res);
   });
 }

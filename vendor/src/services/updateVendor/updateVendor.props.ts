@@ -1,0 +1,16 @@
+export const UpdateVendorProps = {
+  firstName: " ",
+  lastName: " ",
+  mobileNumber: " ",
+  profileImage: " ",
+  city: " ",
+  state: " ",
+  isActive: " ",
+  isEmaiVerified: " ",
+  roles: " ",
+  adharCardImage: " ",
+  panCardImage: " ",
+  availabaleDate: " ",
+  availableTime: " ",
+  services: " ",
+};

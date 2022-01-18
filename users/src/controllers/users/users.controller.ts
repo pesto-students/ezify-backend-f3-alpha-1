@@ -18,7 +18,7 @@ import {
 
 import { UpdateUsersDto } from "../services/updateUser/updateUser.dto";
 import { UpdateUsersProps } from "../services/updateUser/updateUser.props";
-import { UpdatedUsersDB } from "../services/updateUser/users.db";
+import { UpdatedUsersDB } from "../services/users.db";
 
 export class UserController extends BaseController implements Controller {
   public path = "/users";
@@ -38,12 +38,14 @@ export class UserController extends BaseController implements Controller {
     this.router.post(`${this.path}/signup`, validationMiddleware(UsersDto), this.signupUser);
     this.router.post(`${this.path}/verify`, validationMiddleware(VerifyDto), this.verifyUser);
     this.router.patch(`${this.path}/update_user`, validationMiddleware(UpdateUsersDto), upload.single("file"), auth(["user"]), this.updateUser);
+     this.router.post(`${this.path}/book_service`, auth(["user"]), this.userBooking);
   };
 
   private signupUser = this.catchAsyn(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    const { email } = sanitizeBody(UsersProps, req.body) as UserBodyInterface;
-
-    const result = await this.db.signupUser(email, res);
+    const { email,role } = sanitizeBody(UsersProps, req.body);
+      console.log(role);
+      
+    const result = await this.db.signupUser(email,role, res);
 
     new SuccessResponse("success", result).send(res);
   });
@@ -64,4 +66,12 @@ export class UserController extends BaseController implements Controller {
     const result = await this.userdb.updateUserService(newDetails, req.user._id, res);
     new SuccessResponse("success", result).send(res);
   });
+
+  private userBooking = this.catchAsyn(async (req: any, res: express.Response, next: express.NextFunction) => {
+     let bookingData = { ...req.body};
+
+     const bookService = await this.userdb.createBookingService(bookingData,req.user._id,res);
+
+     new SuccessResponse("success", bookService).send(res);
+  })
 }

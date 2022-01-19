@@ -187,10 +187,10 @@ export class UpdatedUsersDB {
           ],
         });
 
-        if (!vendors.length) {
-          ApiError.handle(new BadRequestError("No vendors found for this service"), res);
-          return;
-        }
+        // if (!vendors.length) {
+        //   ApiError.handle(new BadRequestError("No vendors found for this service"), res);
+        //   return;
+        // }
 
         resolve(vendors);
       } catch (err: any) {

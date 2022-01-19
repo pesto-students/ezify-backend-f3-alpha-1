@@ -39,6 +39,10 @@ export class UserController extends BaseController implements Controller {
     this.router.post(`${this.path}/verify`, validationMiddleware(VerifyDto), this.verifyUser);
     this.router.patch(`${this.path}/update_user`, validationMiddleware(UpdateUsersDto), upload.single("file"), auth(["user"]), this.updateUser);
      this.router.post(`${this.path}/book_service`, auth(["user"]), this.userBooking);
+     this.router.get(`${this.path}/get_active_bookings`, auth(["user"]), this.findActiveBookings);
+     this.router.get(`${this.path}/get_all_bookings`, auth(["user"]), this.findAllBookings);
+     this.router.post(`${this.path}/toggle_status`, auth(["user"]), this.toggleStatus);
+     this.router.post(`${this.path}/filterVendors` , this.findVendorsByService);
   };
 
   private signupUser = this.catchAsyn(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -68,10 +72,43 @@ export class UserController extends BaseController implements Controller {
   });
 
   private userBooking = this.catchAsyn(async (req: any, res: express.Response, next: express.NextFunction) => {
-     let bookingData = { ...req.body};
+     //let bookingData = { ...req.body};
 
-     const bookService = await this.userdb.createBookingService(bookingData,req.user._id,res);
+     const bookService = await this.userdb.createBookingService(req.body,req.user._id,res);
 
      new SuccessResponse("success", bookService).send(res);
+  });
+
+  private findActiveBookings = this.catchAsyn(async (req:any, res:express.Response, next: express.NextFunction) => {
+
+    const activeBookings = await this.userdb.getAllActiveBookings(req.user._id,res);
+
+    new SuccessResponse("success", activeBookings).send(res);
+
+  });
+
+  private findAllBookings = this.catchAsyn(async (req:any, res: express.Response, next: express.NextFunction) => {
+
+    const allBookings = await this.userdb.getAllBookings(req.user._id,res);
+
+    new SuccessResponse("success", allBookings).send(res);
+  });
+
+  private toggleStatus = this.catchAsyn(async (req:any,res: express.Response, next: express.NextFunction) => {
+
+    let toggleData = {...req.body};
+
+    const toggleStatus = await this.userdb.toggleBookingStatus(toggleData, req.user._id,res);
+
+    new SuccessResponse("success", toggleData).send(res);
+  });
+
+  private findVendorsByService = this.catchAsyn(async (req: any, res: express.Response, next: express.NextFunction) => {
+
+    const Data =  {...req.body};
+
+    const showVendors = await this.userdb.searchVendorByService(Data,res);
+
+    new SuccessResponse("success", showVendors).send(res);
   })
 }

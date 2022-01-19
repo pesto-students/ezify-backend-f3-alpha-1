@@ -1,16 +1,19 @@
-
-import { ApiError, BadRequestError, User, Bookings } from "@ezzify/common/build";
-import express from "express";
-
+import { ApiError, BadRequestError, User, Bookings, generateOtp } from "@ezzify/common/build";
+import express, { response } from "express";
+import Razorpay from "razorpay";
 
 export class UpdatedUsersDB {
- 
+  private razorpay = new Razorpay({
+    key_id: "rzp_test_tu2qVp4NSABRW7",
+    key_secret: "zIblQiAH8eFj1sA107Zz2tit",
+  });
+
   public updateUserService = (data: any, id: string, res: express.Response) => {
     return new Promise(async (resolve, reject) => {
       try {
-      //    const createBookingId = await Bookings.create({});
-        
-        let updatedObject = { ...data, profileImage: data.profileImage};
+        //    const createBookingId = await Bookings.create({});
+
+        let updatedObject = { ...data, profileImage: data.profileImage };
         const updateUser = await User.findByIdAndUpdate(id, updatedObject, { new: true });
 
         if (!updateUser) {
@@ -25,96 +28,174 @@ export class UpdatedUsersDB {
     });
   };
 
-  // public addBookingService = (data: any, id: string, res: express.Response) => {
-  //   return new Promise(async (resolve, reject) => {
-  //     try {
-        
-      
-  //       const findVendor = await User.findById(data.vendorId);
-  //    //   console.log(findVendor);
-        
-  //       if(!findVendor) {
-  //         ApiError.handle(new BadRequestError("vendor not found!"),res);
-  //         return;
-  //       }
-  //       const findServices = await findVendor.services.find((x:any) => x.serviceID == data.serviceID);
-  //       console.log(findServices?.basePrice);
-        
-  //       const updateBooking = await Bookings.findByIdAndUpdate(id, {
-  //         $addToSet: {bookings:{serviceID: data.serviceID, vendorID: data.vendorId}},
-  //         $inc: {total_amount: findServices?.basePrice}
-  //       }, { new: true });
+  public createBookingService = (data: any, id: string, res: express.Response) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let total_amount = 0;
+        const currency = "INR";
+        const payment_capture = 1;
 
-  //       if(!updateBooking){
-  //         ApiError.handle(new BadRequestError("cannot booked this vendor"),res);
-  //         return;
-  //       }
+        const vendorIds = data.map((x: any) => x.vendorID);
 
-  //       resolve(updateBooking);
-  //     } catch (err: any) {
-  //       ApiError.handle(err, res);
-  //     }
-  //   })
-  // }
+        const findVendor = await User.find({
+          $and: [
+            {
+              _id: { $in: vendorIds },
+            },
+            {
+              roles: "vendor",
+            },
+          ],
+        });
 
-public createBookingService = (data:any, id:string, res: express.Response) => {
-  return new Promise(async (resolve, reject) => {
+        for (let booking of data) {
+          const vendor: any = findVendor.find((x: any) => x._id == booking.vendorID);
 
-    try {
-      
-    const  bookingObj = {...data};
-
-      
-  
-
-   
-        //@ts-ignore
-      const findVendor = await User.find({
-        $and: [
-          { 
-            '_id': { $in: data.vendorId }
-          },
-          {
-            roles: "vendor"
+          if (!vendor) {
+            ApiError.handle(new BadRequestError("something went wrong with vendorID please check again."), res);
+            return;
           }
-        ]
-      });
 
-   //  console.log(findVendor);
+          const service = vendor.services.find((x: any) => x.serviceID == booking.serviceID);
 
-      for(let service of findVendor) {
-        console.log(service.services);
-        
+          if (!service) {
+            return ApiError.handle(new BadRequestError("no service found for this vendor!!"), res);
+          }
+
+          total_amount += service.basePrice;
+        }
+
+        const options = {
+          amount: total_amount * 100,
+          currency,
+          receipt: generateOtp(),
+          payment_capture,
+        };
+
+        const razPayData = await this.razorpay.orders.create(options);
+
+        const createBooking = await Bookings.create({
+          total_amount: total_amount,
+          userID: id,
+          bookings: data,
+          payment_id: razPayData.id,
+        });
+
+        if (!createBooking) {
+          ApiError.handle(new BadRequestError("cannot book this vendor right now! Please try again later"), res);
+          return;
+        }
+
+        const populatedData = await (
+          await createBooking.populate({ path: "bookings", populate: { path: "serviceID" } })
+        ).populate({ path: "bookings", populate: { path: "vendorID" } });
+
+        resolve(populatedData);
+      } catch (err: any) {
+        ApiError.handle(err, res);
       }
+    });
+  };
 
-      // if(findVendor?.roles !== "vendor") {
-      //   ApiError.handle(new BadRequestError("No vendor found with this ID !!"),res);
-      //   return;
-      // }
+  public getAllActiveBookings = (id: string, res: express.Response) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const findActiveBookings = await Bookings.find({
+          $and: [
+            {
+              status: "active",
+            },
+            {
+              userID: id,
+            },
+          ],
+        });
 
-      // const findServices = await findVendor.services.find((x:any) => x.serviceID == data.serviceID);
+        if (!findActiveBookings.length) {
+          ApiError.handle(new BadRequestError("no active bookings found"), res);
+          return;
+        }
 
-      // if(!findServices) {
-      //   ApiError.handle(new BadRequestError("no service found for this vendor"),res);
-      //   return;
-      // }
-      // const createBooking = await Bookings.create({bookings:{serviceID:data.serviceID,vendorID: data.vendorId},total_amount: findServices?.basePrice, userID: id});
+        resolve(findActiveBookings);
+      } catch (err: any) {
+        ApiError.handle(err, res);
+      }
+    });
+  };
 
-      // if(!createBooking) {
-      //   ApiError.handle(new BadRequestError("cannot book this vendor right now! Please try again later"),res);
-      //   return;
-      // }
+  public getAllBookings = (id: string, res: express.Response) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const findAllBookings = await Bookings.find({ userID: id });
 
-      // const populatedData = await (await createBooking.populate({ path: "bookings", populate: { path: "serviceID" } })).populate({path: "bookings",populate: {path: "vendorID"}});
+        if (!findAllBookings.length) {
+          ApiError.handle(new BadRequestError("No bookings found for this user"), res);
+          return;
+        }
 
-      // resolve(populatedData);
-      
-    } catch (err:any) {
-      ApiError.handle(err, res);
-    }
-  })
+        resolve(findAllBookings);
+      } catch (err: any) {
+        ApiError.handle(err, res);
+      }
+    });
+  };
+
+  public toggleBookingStatus = (data: any, id: string, res: express.Response) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const findBooking = await Bookings.find({
+          $and: [
+            {
+              _id: data.bookingid,
+            },
+            {
+              userID: id,
+            },
+          ],
+        });
+
+        if (!findBooking) {
+          ApiError.handle(new BadRequestError("No booking found"), res);
+          return;
+        }
+
+        const toggle = await findBooking[0].update({ status: data.status });
+
+        if (!toggle) {
+          ApiError.handle(new BadRequestError("something went wrong while toggling"), res);
+          return;
+        }
+
+        resolve(toggle);
+      } catch (err: any) {
+        ApiError.handle(err, res);
+      }
+    });
+  };
+
+  public searchVendorByService = (data: any, res: express.Response) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const vendors = await User.find({
+          $and: [
+            {
+              city: data?.city ? data.city : { $ne: " " },
+            },
+            {
+              "services.serviceID": data.serviceID,
+            },
+          ],
+        });
+
+        if (!vendors.length) {
+          ApiError.handle(new BadRequestError("No vendors found for this service"), res);
+          return;
+        }
+
+        resolve(vendors);
+      } catch (err: any) {
+        ApiError.handle(err, res);
+      }
+    });
+  };
 }
-
-}
-
-

@@ -7,6 +7,7 @@ import useragent from "express-useragent";
 import { connectDB, config, ApiError, BadRequestError, InternalError, NotFoundError, Security, Controller } from "@ezzify/common/build";
 
 import { PATH, StatusCode } from "./config";
+import cronJob from "./scheduler/completeBookings";
 
 const { ENVIRONMENT } = config;
 
@@ -22,6 +23,7 @@ class App {
     this._initalizeMiddlewares();
     this._initalizeControllers(controllers);
     this._initalizeErrorHandling();
+    this._initalizeCronjob();
   }
 
   private _connectToDatabase = () => {
@@ -95,6 +97,9 @@ class App {
     });
   };
 
+  private _initalizeCronjob = () => {
+    cronJob();
+  };
   /**
    * Starting the server
    */

@@ -1,4 +1,4 @@
-import { ApiError, BadRequestError, User, Bookings, generateOtp } from "@ezzify/common/build";
+import { ApiError, BadRequestError, User, Bookings, generateOtp, set } from "@ezzify/common/build";
 import express, { response } from "express";
 import Razorpay from "razorpay";
 
@@ -198,4 +198,34 @@ export class UpdatedUsersDB {
       }
     });
   };
+
+  public getCitites = (res:express.Response) => {
+
+    return new Promise(async (resolve, reject) => {
+
+      try {
+        
+        const vendors = await User.find({roles: "vendor"});
+        
+        if(!vendors.length){
+          ApiError.handle(new BadRequestError("No vendor found"),res);
+          return;
+        }
+
+        const cities:any[] = await vendors.map((x:any) => x.city);
+
+        
+        if(!cities) {
+          ApiError.handle(new BadRequestError("No cities found"),res);
+          return;
+        }
+
+        resolve([...new Set(cities)]);
+      } catch (err:any) {
+        
+        ApiError.handle(err, res);
+      }
+
+    })
+  }
 }

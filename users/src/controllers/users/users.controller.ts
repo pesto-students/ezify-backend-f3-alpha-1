@@ -73,9 +73,9 @@ export class UserController extends BaseController implements Controller {
   });
 
   private userBooking = this.catchAsyn(async (req: any, res: express.Response, next: express.NextFunction) => {
-     //let bookingData = { ...req.body};
+     let bookingData = { ...req.body};
 
-     const bookService = await this.userdb.createBookingService(req.body,req.user._id,res);
+     const bookService = await this.userdb.createBookingService(bookingData,req.user._id,res);
 
      new SuccessResponse("success", bookService).send(res);
   });

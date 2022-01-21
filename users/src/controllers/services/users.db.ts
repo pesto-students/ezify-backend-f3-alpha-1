@@ -1,5 +1,6 @@
-import { ApiError, BadRequestError, User, Bookings, generateOtp, set } from "@ezzify/common/build";
+import { ApiError, BadRequestError, User, Bookings, generateOtp, Payment } from "@ezzify/common/build";
 import express, { response } from "express";
+import { model } from "mongoose";
 import Razorpay from "razorpay";
 
 export class UpdatedUsersDB {
@@ -31,11 +32,12 @@ export class UpdatedUsersDB {
   public createBookingService = (data: any, id: string, res: express.Response) => {
     return new Promise(async (resolve, reject) => {
       try {
-        let total_amount = 0;
+       
+       
         const currency = "INR";
         const payment_capture = 1;
 
-        const vendorIds = data.map((x: any) => x.vendorID);
+    const vendorIds = data.bookings.map((x: any) => x.vendorID);
 
         const findVendor = await User.find({
           $and: [
@@ -48,7 +50,7 @@ export class UpdatedUsersDB {
           ],
         });
 
-        for (let booking of data) {
+        for (let booking of data.bookings) {
           const vendor: any = findVendor.find((x: any) => x._id == booking.vendorID);
 
           if (!vendor) {
@@ -61,12 +63,10 @@ export class UpdatedUsersDB {
           if (!service) {
             return ApiError.handle(new BadRequestError("no service found for this vendor!!"), res);
           }
-
-          total_amount += service.basePrice;
         }
 
         const options = {
-          amount: total_amount * 100,
+          amount: data.total_amount * 100,
           currency,
           receipt: generateOtp(),
           payment_capture,
@@ -75,9 +75,9 @@ export class UpdatedUsersDB {
         const razPayData = await this.razorpay.orders.create(options);
 
         const createBooking = await Bookings.create({
-          total_amount: total_amount,
+          total_amount: data.total_amount,
           userID: id,
-          bookings: data,
+          bookings: data.bookings,
           payment_id: razPayData.id,
         });
 
@@ -85,6 +85,22 @@ export class UpdatedUsersDB {
           ApiError.handle(new BadRequestError("cannot book this vendor right now! Please try again later"), res);
           return;
         }
+
+      for(let book of data.bookings) {
+
+        const payments = await Payment.create({
+          serviceID: book.serviceID,
+          vendorID: book.vendorID,
+          baseprice: book.baseprice,
+          userID: id
+        });
+
+        if(!payments){
+          ApiError.handle(new BadRequestError("failed to save payment logs"),res);
+          return;
+        }
+      };
+       
 
         const populatedData = await (
           await createBooking.populate({ path: "bookings", populate: { path: "serviceID" } })

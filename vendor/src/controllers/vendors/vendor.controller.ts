@@ -30,6 +30,12 @@ export class VendorController extends BaseController implements Controller {
 
   private _initializeRoutes = () => {
     this.router.patch(`${this.path}/update_vendor`,validationMiddleware(UpdateVendorDto),upload.fields(this.uploadFields),auth(["vendor"]),this.updateVendor);
+    this.router.get(`${this.path}/viewall_bookings`, auth(["vendor"]), this.viewAllBookings);
+    this.router.get(`${this.path}/viewall_active_bookings`, auth(["vendor"]), this.viewActiveBookings);
+    this.router.get(`${this.path}/viewall_complete_bookings`, auth(["vendor"]), this.viewCompletedBookings);
+    this.router.get(`${this.path}/view_earnings`, auth(["vendor"]), this.viewAllEarnings);
+
+
   };
 
   private updateVendor = this.catchAsyn(async (req: any, res: express.Response, next: express.NextFunction) => {
@@ -45,5 +51,33 @@ export class VendorController extends BaseController implements Controller {
 
     const result = await this.db.updateVendor(req.user._id, newDetails, res);
     new SuccessResponse("success", result).send(res);
+  });
+
+  private viewAllBookings = this.catchAsyn(async (req: any, res: express.Response, next: express.NextFunction) => {
+
+    const viewAllBookings = await this.db.viewAllBookings(req.user._id,res);
+
+    new SuccessResponse("success", viewAllBookings).send(res);
+  });
+
+  private viewActiveBookings = this.catchAsyn(async (req: any, res: express.Response, next: express.NextFunction) => {
+
+    const viewActiveBookings = await this.db.viewActiveBookings(req.user._id,res);
+
+    new SuccessResponse("success", viewActiveBookings).send(res);
+  });
+
+  private viewCompletedBookings = this.catchAsyn(async (req: any, res: express.Response, next: express.NextFunction) => {
+
+    const viewAcompleteBookings = await this.db.viewCompletedBookings(req.user._id,res);
+
+    new SuccessResponse("success", viewAcompleteBookings).send(res);
+  });
+
+  private viewAllEarnings = this.catchAsyn(async (req: any, res: express.Response, next: express.NextFunction) => {
+
+    const viewEarning = await this.db.viewAllEarnings(req.user._id,res);
+
+    new SuccessResponse("success", viewEarning).send(res);
   });
 }

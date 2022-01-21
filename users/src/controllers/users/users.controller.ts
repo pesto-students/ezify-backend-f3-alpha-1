@@ -44,6 +44,8 @@ export class UserController extends BaseController implements Controller {
      this.router.post(`${this.path}/toggle_status`, auth(["user"]), this.toggleStatus);
      this.router.post(`${this.path}/filterVendors` , this.findVendorsByService);
      this.router.get(`${this.path}/findCities` , this.findCities);
+
+     this.router.get(`${this.path}/viewAllOrders`, auth(["user"]), this.findAllOrders);
   };
 
   private signupUser = this.catchAsyn(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -118,5 +120,12 @@ export class UserController extends BaseController implements Controller {
     const showCities = await this.userdb.getCitites(res);
 
     new SuccessResponse("success", showCities).send(res);
+  });
+
+  private findAllOrders = this.catchAsyn(async (req: any, res: express.Response, next: express.NextFunction) => {
+
+    const showOrders = await this.userdb.viewOrders(req.user._id,res);
+
+    new SuccessResponse("success", showOrders).send(res);
   })
 }

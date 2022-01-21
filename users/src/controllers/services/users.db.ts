@@ -1,4 +1,4 @@
-import { ApiError, BadRequestError, User, Bookings, generateOtp, Payment } from "@ezzify/common/build";
+import { ApiError, BadRequestError, User, Bookings, generateOtp, Payment,Ratings } from "@ezzify/common/build";
 import express, { response } from "express";
 import { model } from "mongoose";
 import Razorpay from "razorpay";
@@ -127,10 +127,10 @@ export class UpdatedUsersDB {
           ],
         });
 
-        if (!findActiveBookings.length) {
-          ApiError.handle(new BadRequestError("no active bookings found"), res);
-          return;
-        }
+        // if (!findActiveBookings.length) {
+        //   ApiError.handle(new BadRequestError("no active bookings found"), res);
+        //   return;
+        // }
 
         resolve(findActiveBookings);
       } catch (err: any) {
@@ -144,10 +144,6 @@ export class UpdatedUsersDB {
       try {
         const findAllBookings = await Bookings.find({ userID: id });
 
-        if (!findAllBookings.length) {
-          ApiError.handle(new BadRequestError("No bookings found for this user"), res);
-          return;
-        }
 
         resolve(findAllBookings);
       } catch (err: any) {
@@ -243,5 +239,43 @@ export class UpdatedUsersDB {
       }
 
     })
-  }
+  };
+
+  public viewOrders = (id: string,res: express.Response) => {
+    return new Promise(async (resolve, reject) => {
+
+      try {
+        
+        const totalorders = await Payment.aggregate([
+          {
+            $match: {
+              userID: id
+            }
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "vendorID",
+              foreignField: "_id",
+              as: "vendor_info"
+          }
+          },
+          {
+            $lookup: {
+              from: "services",
+              localField: "serviceID",
+              foreignField: "_id",
+              as: "service_info"
+          }
+          }
+        ]);
+
+        resolve(totalorders);
+
+      } catch (err:any) {
+        ApiError.handle(err, res);
+      }
+    })
+  };
+
 }

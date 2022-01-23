@@ -34,8 +34,8 @@ export class VendorController extends BaseController implements Controller {
     this.router.get(`${this.path}/viewall_active_bookings`, auth(["vendor"]), this.viewActiveBookings);
     this.router.get(`${this.path}/viewall_complete_bookings`, auth(["vendor"]), this.viewCompletedBookings);
     this.router.get(`${this.path}/view_earnings`, auth(["vendor"]), this.viewAllEarnings);
-
     this.router.get(`${this.path}/total_earnings`, auth(["vendor"]), this.totalEarnings);
+    this.router.post(`${this.path}/toggle_status`, auth(["vendor"]), this.toggleBookingStatus);
 
 
 
@@ -91,5 +91,13 @@ export class VendorController extends BaseController implements Controller {
     new SuccessResponse("success", totalEarnings).send(res);
   });
 
+  private toggleBookingStatus = this.catchAsyn(async (req: any, res: express.Response, next: express.NextFunction) => {
+
+    const data = {...req.body};
+
+    const toggleStatus = await this.db.approveBooking(data,res);
+
+    new SuccessResponse("success", toggleStatus).send(res);
+  })
 
 }

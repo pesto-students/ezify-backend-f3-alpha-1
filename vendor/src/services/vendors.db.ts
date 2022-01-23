@@ -4,9 +4,8 @@ import amqplib from "amqplib";
 import express from "express";
 
 export class VendorDB {
-
-  public channel:  amqplib.Channel| undefined;
-  constructor(){
+  public channel: amqplib.Channel | undefined;
+  constructor() {
     this.initChannel();
   }
   private async initChannel() {
@@ -34,15 +33,7 @@ export class VendorDB {
   public viewAllBookings = (id: string, res: express.Response) => {
     return new Promise(async (resolve, reject) => {
       try {
-        
-
-        const bookings = await Payment.find({vendorID: id});
-
-        if (!bookings.length) {
-          ApiError.handle(new BadRequestError("No bookings found for this vendor"), res);
-          return;
-        }
-
+        const bookings = await Payment.find({ vendorID: id });
         resolve(bookings);
       } catch (err: any) {
         ApiError.handle(err, res);
@@ -182,7 +173,7 @@ export class VendorDB {
               foreignField: "_id",
               as: "service_info",
             },
-          }
+          },
         ]);
 
         if (!viewAllvendors.length) {
@@ -246,7 +237,4 @@ export class VendorDB {
       }
     });
   };
-
-  
-
 }

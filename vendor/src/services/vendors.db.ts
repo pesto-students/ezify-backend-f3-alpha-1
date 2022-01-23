@@ -4,9 +4,8 @@ import amqplib from "amqplib";
 import express from "express";
 
 export class VendorDB {
-
-  public channel:  amqplib.Channel| undefined;
-  constructor(){
+  public channel: amqplib.Channel | undefined;
+  constructor() {
     this.initChannel();
   }
   private async initChannel() {
@@ -34,53 +33,14 @@ export class VendorDB {
   public viewAllBookings = (id: string, res: express.Response) => {
     return new Promise(async (resolve, reject) => {
       try {
-        // const bookings = await Bookings.aggregate([
-        //   {
-        //     $match: {
-        //       "bookings.vendorID": id,
-        //     },
-        //   },
-        //   {
-        //     $unwind: "$bookings",
-        //   },
-        //   {
-        //     $match: {
-        //       "bookings.vendorID": id,
-        //     },
-        //   },
-        //   {
-        //     $lookup: {
-        //       from: "users",
-        //       localField: "userID",
-        //       foreignField: "_id",
-        //       as: "user_info",
-        //     },
-        //   },
-        //   // {
-        //   //     $lookup: {
-        //   //         from: "users",
-        //   //         localField: "bookings.vendorID",
-        //   //         foreignField: "_id",
-        //   //         as: "vendor_info"
-        //   //     }
-        //   // },
+        const bookings = await Payment.find({ vendorID: id });
+        console.log(id);
+        console.log(bookings);
 
-        //   {
-        //     $lookup: {
-        //       from: "services",
-        //       localField: "bookings.serviceID",
-        //       foreignField: "_id",
-        //       as: "service_info",
-        //     },
-        //   },
-        // ]);
-
-        const bookings = await Payment.find
-
-        if (!bookings.length) {
-          ApiError.handle(new BadRequestError("No bookings found for this vendor"), res);
-          return;
-        }
+        // if (!bookings.length) {
+        //   ApiError.handle(new BadRequestError("No bookings found for this vendor"), res);
+        //   return;
+        // }
 
         resolve(bookings);
       } catch (err: any) {
@@ -221,7 +181,7 @@ export class VendorDB {
               foreignField: "_id",
               as: "service_info",
             },
-          }
+          },
         ]);
 
         if (!viewAllvendors.length) {
@@ -269,23 +229,16 @@ export class VendorDB {
   public approveBooking = (id: string, data: any, res: express.Response) => {
     return new Promise(async (resolve, reject) => {
       try {
-        
-        const findVendor = await Payment.find({vendorID: id});
+        const findVendor = await Payment.find({ vendorID: id });
 
         console.log(findVendor);
 
-        for(let state of findVendor){
-          
+        for (let state of findVendor) {
         }
-        
-
       } catch (err: any) {
         ApiError.handle(err, res);
         return;
       }
     });
   };
-
-  
-
 }

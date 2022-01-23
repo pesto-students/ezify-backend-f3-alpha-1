@@ -91,4 +91,5 @@ export class VendorController extends BaseController implements Controller {
     new SuccessResponse("success", totalEarnings).send(res);
   });
 
+
 }

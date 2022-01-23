@@ -2,8 +2,17 @@ import { ApiError, BadRequestError, User, Bookings, generateOtp, Payment,Ratings
 import express, { response } from "express";
 import { model } from "mongoose";
 import Razorpay from "razorpay";
-
+import { createChannel, publishMessage } from "../../amqplib/connection";
+import amqplib from "amqplib";
 export class UpdatedUsersDB {
+
+  public channel:  amqplib.Channel| undefined;
+  constructor(){
+    this.initChannel();
+  }
+  private async initChannel() {
+    this.channel = await createChannel();
+  }
   private razorpay = new Razorpay({
     key_id: "rzp_test_tu2qVp4NSABRW7",
     key_secret: "zIblQiAH8eFj1sA107Zz2tit",
@@ -29,6 +38,7 @@ export class UpdatedUsersDB {
     });
   };
 
+
   public createBookingService = (data: any, id: string, res: express.Response) => {
     return new Promise(async (resolve, reject) => {
       try {
@@ -53,6 +63,8 @@ export class UpdatedUsersDB {
         for (let booking of data.bookings) {
           const vendor: any = findVendor.find((x: any) => x._id == booking.vendorID);
 
+          
+
           if (!vendor) {
             ApiError.handle(new BadRequestError("something went wrong with vendorID please check again."), res);
             return;
@@ -63,6 +75,10 @@ export class UpdatedUsersDB {
           if (!service) {
             return ApiError.handle(new BadRequestError("no service found for this vendor!!"), res);
           }
+
+          
+        const queueData = { room: vendor._id, data: {}, event: "NEW_ORDER" };
+        publishMessage(this.channel, "NEW_ORDER", JSON.stringify(queueData));
         }
 
         const options = {
@@ -106,6 +122,8 @@ export class UpdatedUsersDB {
           await createBooking.populate({ path: "bookings", populate: { path: "serviceID" } })
         ).populate({ path: "bookings", populate: { path: "vendorID" } });
 
+
+
         resolve(populatedData);
       } catch (err: any) {
         ApiError.handle(err, res);
@@ -142,7 +160,7 @@ export class UpdatedUsersDB {
   public getAllBookings = (id: string, res: express.Response) => {
     return new Promise(async (resolve, reject) => {
       try {
-        const findAllBookings = await Bookings.find({ userID: id });
+        const findAllBookings = await Payment.find({ userID: id });
 
 
         resolve(findAllBookings);

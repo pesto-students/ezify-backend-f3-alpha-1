@@ -37,6 +37,18 @@ services:
     volumes:
       - .:/app
       - /app/vendor/node_modules
+
+  socket:
+    build:
+      dockerfile: Dockerfile
+      context: ./socket
+    container_name: socket
+    ports:
+      - "4005:4005"
+    restart: always
+    volumes:
+      - .:/app
+      - /app/socket/node_modules
   
  
   nginx-proxy:
@@ -47,6 +59,7 @@ services:
       - users
       - vendor
       - admin
+      - socket
     ports:
       - "80:80"
     restart: always

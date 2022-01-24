@@ -46,6 +46,8 @@ private server: http.Server;
       socket.on("join", (room) => {
         socket.join(room);
       });
+
+      
     
       socket.on("updateCoordinate", async ({ driver_id, coordinates }) => {
         // console.log("jh", coordinates);

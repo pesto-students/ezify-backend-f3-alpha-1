@@ -46,6 +46,8 @@ export class UserController extends BaseController implements Controller {
      this.router.get(`${this.path}/findCities` , this.findCities);
 
      this.router.get(`${this.path}/viewAllOrders`, auth(["user"]), this.findAllOrders);
+     this.router.get(`${this.path}/view_notifiactions`, auth(["vendor", "admin", "user"]), this.findNotification);
+     this.router.get(`${this.path}/toggle_notifiactions`, auth(["vendor", "admin", "user"]), this.toggleNotification);
   };
 
   private signupUser = this.catchAsyn(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -127,5 +129,19 @@ export class UserController extends BaseController implements Controller {
     const showOrders = await this.userdb.viewOrders(req.user._id,res);
 
     new SuccessResponse("success", showOrders).send(res);
-  })
+  });
+
+  private findNotification = this.catchAsyn(async (req: any, res: express.Response, next: express.NextFunction) => {
+
+    const getNotification = await this.userdb.getNotifications(req.user._id, res);
+
+    new SuccessResponse("success", getNotification).send(res);
+  });
+
+  private toggleNotification = this.catchAsyn(async (req: any, res: express.Response, next: express.NextFunction) => {
+
+    const toggleNotification = await this.userdb.toggleNotification(req.body.id, res);
+
+    new SuccessResponse("success", toggleNotification).send(res);
+  });
 }

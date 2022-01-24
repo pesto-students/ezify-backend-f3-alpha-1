@@ -148,7 +148,7 @@ private initSocket() {
       credentials: true,
     },
     transports: ["websocket", "polling"],
-    path: "/mysocket",
+    path: "/mysocket/",
     allowEIO3: true,
   });
 

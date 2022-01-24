@@ -33,7 +33,7 @@ export class VendorDB {
   public viewAllBookings = (id: string, res: express.Response) => {
     return new Promise(async (resolve, reject) => {
       try {
-        const bookings = await Payment.find({ vendorID: id });
+        const bookings = await Payment.find({ vendorID: id }).sort({ _id: -1 });
         resolve(bookings);
       } catch (err: any) {
         ApiError.handle(err, res);
@@ -221,16 +221,14 @@ export class VendorDB {
   public approveBooking = (data: any, res: express.Response) => {
     return new Promise(async (resolve, reject) => {
       try {
-               
-        const findVendor = await Payment.findByIdAndUpdate(data.id, {$set: {status: data.status}}, {new: true});
+        const findVendor = await Payment.findByIdAndUpdate(data.id, { $set: { status: data.status } }, { new: true });
 
-        if(!findVendor) {
-          ApiError.handle(new BadRequestError("something went wrong in toggling status"),res);
+        if (!findVendor) {
+          ApiError.handle(new BadRequestError("something went wrong in toggling status"), res);
           return;
         }
 
         resolve(findVendor);
-        
       } catch (err: any) {
         ApiError.handle(err, res);
         return;

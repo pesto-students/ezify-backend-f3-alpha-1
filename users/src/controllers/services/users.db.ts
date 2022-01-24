@@ -77,8 +77,7 @@ export class UpdatedUsersDB {
           }
 
           
-        const queueData = { room: vendor._id, data: {}, event: "NEW_ORDER" };
-        publishMessage(this.channel, "NEW_ORDER", JSON.stringify(queueData));
+        
         }
 
         const options = {
@@ -103,6 +102,9 @@ export class UpdatedUsersDB {
         }
 
       for(let book of data.bookings) {
+        const vendor: any = findVendor.find((x: any) => x._id == book.vendorID);
+
+        console.log(vendor);
 
         const payments = await Payment.create({
           serviceID: book.serviceID,
@@ -115,6 +117,9 @@ export class UpdatedUsersDB {
           ApiError.handle(new BadRequestError("failed to save payment logs"),res);
           return;
         }
+
+        const queueData = { room: vendor._id, data: {createBooking}, event: "NEW_ORDER" };
+        publishMessage(this.channel, "NEW_ORDER", JSON.stringify(queueData));
       };
        
 

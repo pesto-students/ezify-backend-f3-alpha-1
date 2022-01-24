@@ -33,7 +33,7 @@ export class VendorDB {
   public viewAllBookings = (id: string, res: express.Response) => {
     return new Promise(async (resolve, reject) => {
       try {
-        const bookings = await Payment.find({ vendorID: id });
+        const bookings = await Payment.find({ vendorID: id }).sort({_id: -1});
         resolve(bookings);
       } catch (err: any) {
         ApiError.handle(err, res);
@@ -174,7 +174,7 @@ export class VendorDB {
               as: "service_info",
             },
           },
-        ]);
+        ]).sort({_id: -1});
 
         if (!viewAllvendors.length) {
           ApiError.handle(new BadRequestError("NO payement found for this vendor"), res);
@@ -200,17 +200,23 @@ export class VendorDB {
           {
             $group: {
               _id: null,
-              total_earning: { $sum: "$baseprice" },
+              total_earning: { $sum: "$baseprice"}
             },
-          },
-        ]);
-
+          }
+        ]);        
         if (!viewvendors.length) {
           ApiError.handle(new BadRequestError("No payment found for this vendor"), res);
           return;
         }
 
-        resolve(viewvendors);
+        const total_booking = await Payment.find({vendorID:id});
+
+        if(!total_booking.length){
+          ApiError.handle(new BadRequestError("somerthing went wrong"),res);
+          return;
+        }
+
+        resolve({total_earn: viewvendors, total_booking: total_booking.length });
       } catch (err: any) {
         ApiError.handle(err, res);
         return;

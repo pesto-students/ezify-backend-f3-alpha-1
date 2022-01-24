@@ -1,4 +1,4 @@
-import { ApiError, BadRequestError, User, Bookings, generateOtp, Payment,Ratings } from "@ezzify/common/build";
+import { ApiError, BadRequestError, User, Bookings, generateOtp, Payment,Notification } from "@ezzify/common/build";
 import express, { response } from "express";
 import { model } from "mongoose";
 import Razorpay from "razorpay";
@@ -120,6 +120,17 @@ export class UpdatedUsersDB {
 
         const queueData = { room: vendor._id, data: {createBooking}, event: "NEW_ORDER" };
         publishMessage(this.channel, "NEW_ORDER", JSON.stringify(queueData));
+
+        const createNotifcation = await Notification.create({
+          to: vendor._id,
+          from: id,
+          data: queueData
+        });
+
+        if(!createNotifcation){
+          ApiError.handle(new BadRequestError("cant create notification for the booking"),res);
+          return;
+        }
       };
        
 
@@ -131,6 +142,8 @@ export class UpdatedUsersDB {
 
         resolve(populatedData);
       } catch (err: any) {
+        console.log(err);
+        
         ApiError.handle(err, res);
       }
     });

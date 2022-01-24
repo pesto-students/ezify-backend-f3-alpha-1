@@ -1,4 +1,4 @@
-import { ApiError, BadRequestError, User, Bookings, Payment } from "@ezzify/common/build";
+import { ApiError, BadRequestError, User, Bookings, Payment,Notification } from "@ezzify/common/build";
 import { createChannel, publishMessage } from "../amqplib/connection";
 import amqplib from "amqplib";
 import express from "express";
@@ -22,6 +22,17 @@ export class VendorDB {
         if (!updatedVendor) {
           return ApiError.handle(new BadRequestError("cannot update the vendor profile"), res);
         }
+
+        const admin = await User.find({roles: "admin"});
+
+        const queueData = { room: admin[0]._id, data: {updatedVendor}, event: "NEW_ORDER" };
+        publishMessage(this.channel, "NEW_ORDER", JSON.stringify(queueData));
+
+        const createNotification = await Notification.create({
+          to: admin[0]._id,
+          from: id,
+          data: queueData
+        });
 
         resolve(updatedVendor);
       } catch (err: any) {
@@ -228,11 +239,26 @@ export class VendorDB {
     return new Promise(async (resolve, reject) => {
       try {
         const findVendor = await Payment.findByIdAndUpdate(data.id, { $set: { status: data.status } }, { new: true });
+        
 
         if (!findVendor) {
           ApiError.handle(new BadRequestError("something went wrong in toggling status"), res);
           return;
         }
+
+        const queueData = { room: findVendor?.userID, data: {status: data.status}, event: "NEW_ORDER" };
+        publishMessage(this.channel, "NEW_ORDER", JSON.stringify(queueData));
+
+        const createNotification = await Notification.create({
+          to: findVendor.userID,
+          from: findVendor.vendorID,
+          data: queueData
+        })
+
+        // if(!createNotification) {
+        //   ApiError.handle(new BadRequestError("something went wrong in createNotification"),res);
+        //   return;
+        // }
 
         resolve(findVendor);
       } catch (err: any) {

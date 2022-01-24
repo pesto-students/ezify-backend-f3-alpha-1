@@ -82,7 +82,7 @@ export class AdminController extends BaseController implements Controller {
         req.body = sanitizeBody(IsApprovedProps, req.body);
     const vendorID = req.params.id;
 
-    const approveVendor = await this.db.approveVendor(vendorID, req.body.isApproved, res);
+    const approveVendor = await this.db.approveVendor(req.user._id,vendorID, req.body.isApproved, res);
 
     new SuccessResponse("success", approveVendor).send(res);
   });

@@ -47,7 +47,7 @@ export class UserController extends BaseController implements Controller {
 
      this.router.get(`${this.path}/viewAllOrders`, auth(["user"]), this.findAllOrders);
      this.router.get(`${this.path}/view_notifiactions`, auth(["vendor", "admin", "user"]), this.findNotification);
-     this.router.get(`${this.path}/toggle_notifiactions`, auth(["vendor", "admin", "user"]), this.toggleNotification);
+     this.router.post(`${this.path}/toggle_notifiactions`, auth(["vendor", "admin", "user"]), this.toggleNotification);
   };
 
   private signupUser = this.catchAsyn(async (req: express.Request, res: express.Response, next: express.NextFunction) => {

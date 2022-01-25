@@ -9,22 +9,21 @@ import { connectDB, config, ApiError, BadRequestError, InternalError, NotFoundEr
 import { PATH, StatusCode } from "./config";
 import http from "http";
 
-import {Server} from "socket.io";
+import { Server } from "socket.io";
 
-import {createChannel,publishMessage,subscribeMessage} from "./amqplib/connection";
+import { createChannel, publishMessage, subscribeMessage } from "./amqplib/connection";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
-
 
 const { ENVIRONMENT } = config;
 
 class App {
   public app: express.Application;
-  public port: string | number |undefined;
-  public channel:  amqplib.Channel | undefined;
-  public io :Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;
-private server: http.Server; 
+  public port: string | number | undefined;
+  public channel: amqplib.Channel | undefined;
+  public io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>;
+  private server: http.Server;
 
-  constructor(controllers: Controller[], port: string |number| undefined) {
+  constructor(controllers: Controller[], port: string | number | undefined) {
     this.app = express();
     this.port = port;
     this.server = http.createServer(this.app);
@@ -32,35 +31,31 @@ private server: http.Server;
     this._initalizeMiddlewares();
     this._initalizeControllers(controllers);
     this._initalizeErrorHandling();
-    this._connetToAmqlib();
-    this.io = this.initSocket()
-
+    this.io = this.initSocket();
     this._createSocketConnection();
-   
+    this._connetToAmqlib();
   }
 
- private _createSocketConnection() {
-   this.io.on("connection", (socket) => {
+  private _createSocketConnection() {
+    this.io.on("connection", (socket) => {
       console.log("socket connected");
-      
+
       socket.on("join", (room) => {
+        console.log("Socket Joined", room);
         socket.join(room);
       });
 
-      
-    
       socket.on("updateCoordinate", async ({ driver_id, coordinates }) => {
         // console.log("jh", coordinates);
-       
       });
     });
   }
-  public service =(payload:string) => {
+
+  public service = (payload: string) => {
     const { room, data, event } = JSON.parse(payload);
     console.log({ room, data, event });
     this.io.to(room).emit(event, data);
-  
-  }
+  };
 
   private _connectToDatabase = () => {
     connectDB();
@@ -68,10 +63,9 @@ private server: http.Server;
 
   private _connetToAmqlib = async () => {
     this.channel = await createChannel();
-    subscribeMessage(this.channel, "NEW_ORDER", this.service)
-  }
-  
-  
+    subscribeMessage(this.channel, "NEW_ORDER", this.service);
+  };
+
   /**
    * A generic function to attach global level middlewares
    */
@@ -139,63 +133,55 @@ private server: http.Server;
     });
   };
 
-
-
-private initSocket() {
-  return  new Server(this.server, {
-    /* options */
-    cors: {
-      origin: "*:*",
-      methods: ["GET", "POST"],
-      credentials: true,
-    },
-    transports: ["websocket", "polling"],
-    path: "/mysocket/",
-    allowEIO3: true,
-  });
-
-}
-
+  private initSocket() {
+    return new Server(this.server, {
+      /* options */
+      cors: {
+        origin: "*:*",
+        methods: ["GET", "POST"],
+        credentials: true,
+      },
+      transports: ["websocket", "polling"],
+      path: "/mysocket/",
+      allowEIO3: true,
+    });
+  }
 
   /**
    * Starting the server
    */
   public listen() {
- 
-    this.server.listen(this.port,()=>{
+    this.server.listen(this.port, () => {
       console.log("Socket service listening on port" + this.port);
     });
     this.server.on("error", this.onError);
-   
   }
 
-  
-  private onError(error:any) {
-  if (error.syscall !== "listen") {
-    throw error;
-  }
-
-  var bind = typeof this.port === "string" ? "Pipe " + this.port : "Port " + this.port;
-
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case "EACCES":
-      console.error(bind + " requires elevated privileges");
-      process.exit(1);
-      break;
-    case "EADDRINUSE":
-      console.error(bind + " is already in use");
-      process.exit(1);
-      break;
-    default:
+  private onError(error: any) {
+    if (error.syscall !== "listen") {
       throw error;
-  }
-}
+    }
 
-/**
- * Event listener for HTTP server "listening" event.
- */
- 
+    var bind = typeof this.port === "string" ? "Pipe " + this.port : "Port " + this.port;
+
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+      case "EACCES":
+        console.error(bind + " requires elevated privileges");
+        process.exit(1);
+        break;
+      case "EADDRINUSE":
+        console.error(bind + " is already in use");
+        process.exit(1);
+        break;
+      default:
+        throw error;
+    }
+  }
+
+  /**
+   * Event listener for HTTP server "listening" event.
+   */
 }
 
 export default App;

@@ -95,8 +95,6 @@ export class UpdatedUsersDB {
         for (let book of data.bookings) {
           const vendor: any = findVendor.find((x: any) => x._id == book.vendorID);
 
-          console.log(vendor);
-
           const payments = await Payment.create({
             serviceID: book.serviceID,
             vendorID: book.vendorID,
@@ -108,6 +106,8 @@ export class UpdatedUsersDB {
             ApiError.handle(new BadRequestError("failed to save payment logs"), res);
             return;
           }
+
+          console.log(vendor._id);
 
           const queueData = { room: vendor._id, data: { createBooking }, event: "NEW_ORDER" };
           publishMessage(this.channel, "NEW_ORDER", JSON.stringify(queueData));
@@ -292,9 +292,8 @@ export class UpdatedUsersDB {
     });
   };
 
-  public getNotifications = (id: string,res: express.Response) => {
-
-    return new Promise(async (resolve,reject) => {
+  public getNotifications = (id: string, res: express.Response) => {
+    return new Promise(async (resolve, reject) => {
       try {
         const findNotification = await Notification.find({
           $and: [
@@ -302,35 +301,32 @@ export class UpdatedUsersDB {
               to: id,
             },
             {
-              read: false
-            }
-          ]
-        }).sort({_id: -1});
-  
+              read: false,
+            },
+          ],
+        }).sort({ _id: -1 });
+
         resolve(findNotification);
-
-      } catch (err:any) {
-        ApiError.handle(err, res);
-      }
-    })
-  };
-
-  public toggleNotification = (id: string,res: express.Response) => {
-
-    return new Promise(async (resolve,reject) => {
-      try {
-        const findNotification = await Notification.findByIdAndUpdate(id, {$set: {read: true}}, {new: true});
-
-        if(!findNotification) {
-          ApiError.handle(new BadRequestError("failed to toggle the read status"),res);
-          return;
-        }
-  
-        resolve(findNotification);
-
-      } catch (err:any) {
+      } catch (err: any) {
         ApiError.handle(err, res);
       }
     });
   };
+
+  public toggleNotification = (id: string, res: express.Response) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const findNotification = await Notification.findByIdAndUpdate(id, { $set: { read: true } }, { new: true });
+
+        if (!findNotification) {
+          ApiError.handle(new BadRequestError("failed to toggle the read status"), res);
+          return;
+        }
+
+        resolve(findNotification);
+      } catch (err: any) {
+        ApiError.handle(err, res);
+      }
+    });
   };
+}

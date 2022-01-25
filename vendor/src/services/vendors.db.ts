@@ -1,4 +1,4 @@
-import { ApiError, BadRequestError, User, Bookings, Payment,Notification } from "@ezzify/common/build";
+import { ApiError, BadRequestError, User, Bookings, Payment, Notification } from "@ezzify/common/build";
 import { createChannel, publishMessage } from "../amqplib/connection";
 import amqplib from "amqplib";
 import express from "express";
@@ -23,15 +23,15 @@ export class VendorDB {
           return ApiError.handle(new BadRequestError("cannot update the vendor profile"), res);
         }
 
-        const admin = await User.find({roles: "admin"});
+        const admin = await User.find({ roles: "admin" });
 
-        const queueData = { room: admin[0]._id, data: {updatedVendor}, event: "NEW_ORDER" };
+        const queueData = { room: admin[0]._id, data: { updatedVendor }, event: "NEW_ORDER" };
         publishMessage(this.channel, "NEW_ORDER", JSON.stringify(queueData));
 
         const createNotification = await Notification.create({
           to: admin[0]._id,
           from: id,
-          data: queueData
+          data: queueData,
         });
 
         resolve(updatedVendor);
@@ -44,7 +44,7 @@ export class VendorDB {
   public viewAllBookings = (id: string, res: express.Response) => {
     return new Promise(async (resolve, reject) => {
       try {
-        const bookings = await Payment.find({ vendorID: id }).sort({_id: -1});
+        const bookings = await Payment.find({ vendorID: id }).sort({ _id: -1 });
         resolve(bookings);
       } catch (err: any) {
         ApiError.handle(err, res);
@@ -185,7 +185,7 @@ export class VendorDB {
               as: "service_info",
             },
           },
-        ]).sort({_id: -1});
+        ]).sort({ _id: -1 });
 
         if (!viewAllvendors.length) {
           ApiError.handle(new BadRequestError("NO payement found for this vendor"), res);
@@ -211,23 +211,23 @@ export class VendorDB {
           {
             $group: {
               _id: null,
-              total_earning: { $sum: "$baseprice"}
+              total_earning: { $sum: "$baseprice" },
             },
-          }
-        ]);        
+          },
+        ]);
         if (!viewvendors.length) {
           ApiError.handle(new BadRequestError("No payment found for this vendor"), res);
           return;
         }
 
-        const total_booking = await Payment.find({vendorID:id});
+        const total_booking = await Payment.find({ vendorID: id });
 
-        if(!total_booking.length){
-          ApiError.handle(new BadRequestError("somerthing went wrong"),res);
+        if (!total_booking.length) {
+          ApiError.handle(new BadRequestError("somerthing went wrong"), res);
           return;
         }
 
-        resolve({total_earn: viewvendors, total_booking: total_booking.length });
+        resolve({ total_earn: viewvendors, total_booking: total_booking.length });
       } catch (err: any) {
         ApiError.handle(err, res);
         return;
@@ -239,21 +239,23 @@ export class VendorDB {
     return new Promise(async (resolve, reject) => {
       try {
         const findVendor = await Payment.findByIdAndUpdate(data.id, { $set: { status: data.status } }, { new: true });
-        
 
         if (!findVendor) {
           ApiError.handle(new BadRequestError("something went wrong in toggling status"), res);
           return;
         }
+        // @ts-ignore
+        console.log(findVendor?.userID?._id);
 
-        const queueData = { room: findVendor?.userID, data: {status: data.status}, event: "NEW_ORDER" };
+        // @ts-ignore
+        const queueData = { room: findVendor?.userID?._id, data: { status: data.status }, event: "NEW_ORDER" };
         publishMessage(this.channel, "NEW_ORDER", JSON.stringify(queueData));
 
         const createNotification = await Notification.create({
           to: findVendor.userID,
           from: findVendor.vendorID,
-          data: queueData
-        })
+          data: queueData,
+        });
 
         // if(!createNotification) {
         //   ApiError.handle(new BadRequestError("something went wrong in createNotification"),res);

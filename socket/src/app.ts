@@ -27,13 +27,13 @@ class App {
     this.app = express();
     this.port = port;
     this.server = http.createServer(this.app);
+    this._connetToAmqlib();
     this._connectToDatabase();
     this._initalizeMiddlewares();
     this._initalizeControllers(controllers);
     this._initalizeErrorHandling();
     this.io = this.initSocket();
     this._createSocketConnection();
-    this._connetToAmqlib();
   }
 
   private _createSocketConnection() {
@@ -63,7 +63,7 @@ class App {
 
   private _connetToAmqlib = async () => {
     this.channel = await createChannel();
-    subscribeMessage(this.channel, "NEW_ORDER", this.service);
+    await subscribeMessage(this.channel, "NEW_ORDER", this.service);
   };
 
   /**

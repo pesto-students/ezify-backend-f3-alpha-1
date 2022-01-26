@@ -249,7 +249,8 @@ export class VendorDB {
 
         // @ts-ignore
         const queueData = { room: findVendor?.userID?._id, data: { status: data.status }, event: "NEW_ORDER" };
-        publishMessage(this.channel, "NEW_ORDER", JSON.stringify(queueData));
+        console.log('queueData', queueData);
+        await publishMessage(this.channel, "NEW_ORDER", JSON.stringify(queueData));
 
         const createNotification = await Notification.create({
           to: findVendor.userID,

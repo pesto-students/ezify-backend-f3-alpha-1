@@ -30,7 +30,7 @@ export const subscribeMessage = async (channel: amqplib.Channel | undefined, bin
     const queue: string = (appQueue as amqplib.Replies.AssertQueue).queue;
     channel?.bindQueue(queue, EXCHANGE_name, binding_key);
     channel?.consume(queue, (data: any) => {
-      // console.log(data);
+      console.log('data', data);
       channel.ack(data);
       const order = data.content.toString();
     //   console.log("order", order);

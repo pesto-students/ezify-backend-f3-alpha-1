@@ -25,6 +25,7 @@ export const createChannel = async() => {
 export const publishMessage = async(channel:any, binding_key:any, message:any) => {
 
     try {
+        console.log('binding_key', binding_key);
         await channel.publish(EXCHANGE_name, binding_key, Buffer.from(message));
     } catch (err:any) {
         console.log(err);

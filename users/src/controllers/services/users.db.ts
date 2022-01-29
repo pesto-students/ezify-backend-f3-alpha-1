@@ -149,7 +149,7 @@ export class UpdatedUsersDB {
               userID: id,
             },
           ],
-        });
+        }).sort({ _id: -1 });
 
         // if (!findActiveBookings.length) {
         //   ApiError.handle(new BadRequestError("no active bookings found"), res);
@@ -166,7 +166,7 @@ export class UpdatedUsersDB {
   public getAllBookings = (id: string, res: express.Response) => {
     return new Promise(async (resolve, reject) => {
       try {
-        const findAllBookings = await Payment.find({ userID: id });
+        const findAllBookings = await Payment.find({ userID: id }).sort({ _id: -1});
 
         resolve(findAllBookings);
       } catch (err: any) {
@@ -283,7 +283,7 @@ export class UpdatedUsersDB {
               as: "service_info",
             },
           },
-        ]);
+        ]).sort({ _id: -1});
 
         resolve(totalorders);
       } catch (err: any) {

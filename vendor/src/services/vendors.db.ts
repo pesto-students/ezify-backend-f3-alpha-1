@@ -244,8 +244,6 @@ export class VendorDB {
           ApiError.handle(new BadRequestError("something went wrong in toggling status"), res);
           return;
         }
-        // @ts-ignore
-        console.log(findVendor?.userID?._id);
 
         // @ts-ignore
         const queueData = { room: findVendor?.userID?._id, data: { status: data.status }, event: "NEW_ORDER" };

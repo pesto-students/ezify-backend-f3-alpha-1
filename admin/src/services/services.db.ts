@@ -34,7 +34,7 @@ export class ServicesDB {
   public viewServices = (req: express.Request, res: express.Response) => {
     return new Promise(async (resolve, reject) => {
       try {
-        const viewServices = await Services.find({});
+        const viewServices = await Services.find({}).sort({ _id: -1});
 
         if (!viewServices) {
           ApiError.handle(new BadRequestError("Failed to fetch services from database"), res);
@@ -112,7 +112,7 @@ export class ServicesDB {
   public list_of_vendors = (res: express.Response) => {
     return new Promise(async (resolve, reject) => {
       try {
-        const viewVendors = await User.find({ roles: "vendor" });
+        const viewVendors = await User.find({ roles: "vendor" }).sort({_id: -1});
 
         if (!viewVendors) {
           ApiError.handle(new BadRequestError("no vendors found!"), res);

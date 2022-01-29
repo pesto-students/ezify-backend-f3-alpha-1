@@ -32,6 +32,7 @@ export class VendorDB {
           to: admin[0]._id,
           from: id,
           data: queueData,
+          type: "VENDOR_CREATED",
         });
 
         resolve(updatedVendor);
@@ -187,10 +188,10 @@ export class VendorDB {
           },
         ]).sort({ _id: -1 });
 
-        if (!viewAllvendors.length) {
-          ApiError.handle(new BadRequestError("NO payement found for this vendor"), res);
-          return;
-        }
+        // if (!viewAllvendors.length) {
+        //   ApiError.handle(new BadRequestError("NO payement found for this vendor"), res);
+        //   return;
+        // }
 
         resolve(viewAllvendors);
       } catch (err: any) {
@@ -247,13 +248,14 @@ export class VendorDB {
 
         // @ts-ignore
         const queueData = { room: findVendor?.userID?._id, data: { status: data.status }, event: "NEW_ORDER" };
-        console.log('queueData', queueData);
+        console.log("queueData", queueData);
         await publishMessage(this.channel, "NEW_ORDER", JSON.stringify(queueData));
 
         const createNotification = await Notification.create({
           to: findVendor.userID,
           from: findVendor.vendorID,
           data: queueData,
+          type: "BOOKING_STATUS_CHANGED",
         });
 
         // if(!createNotification) {

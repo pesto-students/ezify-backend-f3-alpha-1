@@ -6,7 +6,7 @@ export const UpdateVendorProps = {
   city: " ",
   state: " ",
   isActive: " ",
-  isEmaiVerified: " ",
+  isEmailVerified: " ",
   roles: " ",
   adharCardImage: " ",
   panCardImage: " ",

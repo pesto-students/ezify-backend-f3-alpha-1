@@ -24,22 +24,15 @@ export class AdminController extends BaseController implements Controller {
 
   private _initializeRoutes = () => {
     // this.router.post(`${this.path}/signup`, validationMiddleware(UsersDto), this.signupUser);
-    this.router.post(`${this.path}/create_service`,  upload.single("image"), auth(["admin"]), this.createServices);
+    this.router.post(`${this.path}/create_service`, upload.single("image"), auth(["admin"]), this.createServices);
     this.router.get(`${this.path}/view_service`, this.viewServices);
-    this.router.patch(
-      `${this.path}/update_service/:id`,
-      upload.single("file"),
-      auth(["admin"]),
-      this.updateServices
-    );
-    this.router.delete(`${this.path}/delete_service/:id`,validationMiddleware(DeleteServiceDto), auth(["admin"]), this.deleteService);
+    this.router.patch(`${this.path}/update_service/:id`, upload.single("file"), auth(["admin"]), this.updateServices);
+    this.router.delete(`${this.path}/delete_service/:id`, validationMiddleware(DeleteServiceDto), auth(["admin"]), this.deleteService);
     this.router.post(`${this.path}/approve_vendor/:id`, validationMiddleware(IsApprovedDto), auth(["admin"]), this.approveVendor);
     this.router.get(`${this.path}/list_all_vendors`, auth(["admin"]), this.listAllVendors);
   };
 
   private createServices = this.catchAsyn(async (req: any, res: express.Response, next: express.NextFunction) => {
-    
-    
     req.body = sanitizeBody(ServiceProps, req.body);
 
     let createData = { ...req.body, image: req?.file?.location };
@@ -78,19 +71,17 @@ export class AdminController extends BaseController implements Controller {
   });
 
   private approveVendor = this.catchAsyn(async (req: any, res: express.Response, next: express.NextFunction) => {
-
-        req.body = sanitizeBody(IsApprovedProps, req.body);
+    req.body = sanitizeBody(IsApprovedProps, req.body);
     const vendorID = req.params.id;
 
-    const approveVendor = await this.db.approveVendor(req.user._id,vendorID, req.body.isApproved, res);
+    const approveVendor = await this.db.approveVendor(req.user._id, vendorID, req.body.isApproved, res);
 
     new SuccessResponse("success", approveVendor).send(res);
   });
 
   private listAllVendors = this.catchAsyn(async (req: any, res: express.Response, next: express.NextFunction) => {
-
     const viewAllVendors = await this.db.list_of_vendors(res);
 
     new SuccessResponse("success", viewAllVendors).send(res);
-  })
+  });
 }

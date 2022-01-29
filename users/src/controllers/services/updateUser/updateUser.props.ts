@@ -6,5 +6,7 @@ export const UpdateUsersProps = {
   profileImage: " ",
   city: " ",
   state: " ",
-  isActive: " "
+  isActive: " ",
+  isApproved: " ",
+  isEmailVerified: " ",
 };

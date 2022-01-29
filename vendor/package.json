@@ -5,12 +5,13 @@
   "main": "server.js",
   "scripts": {
     "start:dev": "nodemon",
+    "npm_update": "npm update @ezzify/common",
     "build": "rimraf ./build && tsc && cp package.json build/ && cp package-lock.json build/",
     "start": "npm run build && node build/server.js",
     "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'tests/**/*.ts' --timeout 10000"
   },
   "dependencies": {
-    "@ezzify/common": "^1.0.66",
+    "@ezzify/common": "^1.0.69",
     "amqplib": "^0.8.0",
     "axios": "^0.24.0",
     "class-transformer": "^0.2.3",

@@ -48,7 +48,7 @@ export class VendorController extends BaseController implements Controller {
 
     let newDetails = { ...req.body };    
     
-    profileImage ? (newDetails.profileImage = profileImage[0].location) : null;
+    profileImage ? (newDetails.profileImage = profileImage[0].location) : req.user.profileImage;
     adharCardImage ? (newDetails.adharCardImage = adharCardImage[0].location) : null;
     panCardImage ? (newDetails.panCardImage = panCardImage[0].location) : null;
 

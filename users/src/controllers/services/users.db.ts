@@ -116,6 +116,7 @@ export class UpdatedUsersDB {
             to: vendor._id,
             from: id,
             data: queueData,
+            type: "NEW_BOOKING_CREATED",
           });
 
           if (!createNotifcation) {
@@ -239,10 +240,10 @@ export class UpdatedUsersDB {
       try {
         const vendors = await User.find({ roles: "vendor" });
 
-        if (!vendors.length) {
-          ApiError.handle(new BadRequestError("No vendor found"), res);
-          return;
-        }
+        // if (!vendors.length) {
+        //   ApiError.handle(new BadRequestError("No vendor found"), res);
+        //   return;
+        // }
 
         const cities: any[] = await vendors.map((x: any) => x.city);
 

@@ -31,7 +31,7 @@ export class UpdateVendorDto {
 
   @IsBoolean()
   @IsOptional()
-  isEmaiVerified!: string;
+  isEmailVerified!: string;
 
   @IsIn(["user", "vendor"])
   @IsString()

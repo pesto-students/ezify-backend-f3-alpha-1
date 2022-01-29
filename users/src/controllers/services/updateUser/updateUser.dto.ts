@@ -35,7 +35,12 @@ export class UpdateUsersDto {
 
   @IsBoolean()
   @IsOptional()
-  isEmaiVerified!: string;
+  isEmailVerified!: string;
+
+  @IsString()
+  @IsOptional()
+  @IsIn(["pending", "approved", 'rejected'])
+  isApproved!: string;
 
   @IsIn(["user", "vendor"])
   @IsString()

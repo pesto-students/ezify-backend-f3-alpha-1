@@ -7,9 +7,9 @@ const { ENCRYPTION_KEY } = config;
 
 const ServicesSchema = new mongoose.Schema(
     {
-        name: { type: String, default: " ", required: true, unique: true},
-        description: { type: String, default: " ", required: true },
-        image: { type: String, default: " ", required: true },
+        name: { type: String, default: " ",  unique: true},
+        description: { type: String, default: " "},
+        image: { type: String, default: " "},
     },
   {
     timestamps: true,

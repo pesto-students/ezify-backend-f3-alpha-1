@@ -14,6 +14,7 @@ import {
   VerifyInterface,
   upload,
   auth,
+  SuccessMsgResponse,
 } from "@ezzify/common/build";
 
 import { UpdateUsersDto } from "../services/updateUser/updateUser.dto";
@@ -48,6 +49,7 @@ export class UserController extends BaseController implements Controller {
     this.router.get(`${this.path}/viewAllOrders`, auth(["user"]), this.findAllOrders);
     this.router.get(`${this.path}/view_notifiactions`, auth(["vendor", "admin", "user"]), this.findNotification);
     this.router.post(`${this.path}/toggle_notifiactions`, auth(["vendor", "admin", "user"]), this.toggleNotification);
+    this.router.get(`${this.path}/markAsRead`, auth(["vendor", "user", "admin"]), this.markAsReadNotification);
   };
 
   private signupUser = this.catchAsyn(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -134,5 +136,12 @@ export class UserController extends BaseController implements Controller {
     const toggleNotification = await this.userdb.toggleNotification(req.body.id, res);
 
     new SuccessResponse("success", toggleNotification).send(res);
+  });
+
+  private markAsReadNotification = this.catchAsyn(async (req: any, res: express.Response, next: express.NextFunction) => {
+
+    const markAsReadNotification = await this.userdb.markAsReadNotification(req.user._id, res);
+
+    new SuccessMsgResponse("success").send(res);
   });
 }

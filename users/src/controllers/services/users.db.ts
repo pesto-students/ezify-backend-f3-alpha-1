@@ -330,4 +330,39 @@ export class UpdatedUsersDB {
       }
     });
   };
+
+  public markAsReadNotification = (id: string, res: express.Response) => {
+    return new Promise(async (resolve, reject) => {
+
+      try {
+        console.log(id);
+        
+        const findNotifcation = await Notification.find({to: id});
+
+
+
+
+
+        if(!findNotifcation.length) {
+          ApiError.handle(new BadRequestError("No new notification found to read!!"),res);
+          return;
+        }
+
+     
+        const markRead = await findNotifcation.map(async(x:any) => {
+          x.read = true;
+          await x.save();
+      });
+
+      if(!markRead) {
+        ApiError.handle(new BadRequestError("something went wrong!"),res);
+        return;
+      }
+
+      resolve(markRead);
+      } catch (err:any) {
+        ApiError.handle(err, res);
+      }
+    })
+  }
 }

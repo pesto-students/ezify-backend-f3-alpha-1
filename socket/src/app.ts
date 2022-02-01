@@ -28,12 +28,12 @@ class App {
     this.port = port;
     this.server = http.createServer(this.app);
     this._connetToAmqlib();
+    this.io = this.initSocket();
+    this._createSocketConnection();
     this._connectToDatabase();
     this._initalizeMiddlewares();
     this._initalizeControllers(controllers);
     this._initalizeErrorHandling();
-    this.io = this.initSocket();
-    this._createSocketConnection();
   }
 
   private _createSocketConnection() {

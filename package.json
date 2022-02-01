@@ -8,7 +8,7 @@
     "build": "rimraf ./build && tsc && cp package.json build/ && cp package-lock.json build/",
     "start": "npm run build && node build/server.js",
     "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'tests/**/*.ts' --timeout 10000",
-    "docker:run": "docker-compose build && docker-compose push && docker-compose up"
+    "docker:run": "docker-compose build && docker-compose up"
   },
   "dependencies": {
     "axios": "^0.24.0",

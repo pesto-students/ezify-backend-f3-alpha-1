@@ -54,9 +54,9 @@ export class UserController extends BaseController implements Controller {
 
   private signupUser = this.catchAsyn(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const { email, role } = sanitizeBody(UsersProps, req.body);
-    console.log(role);
+    const { SENDGRID_API_KEY, SENDGRID_SENDER_EMAIL } = process.env;
 
-    const result = await this.db.signupUser(email, role, res);
+    const result = await this.db.signupUser(email, role, SENDGRID_API_KEY, SENDGRID_SENDER_EMAIL, res);
 
     new SuccessResponse("success", result).send(res);
   });
@@ -139,7 +139,6 @@ export class UserController extends BaseController implements Controller {
   });
 
   private markAsReadNotification = this.catchAsyn(async (req: any, res: express.Response, next: express.NextFunction) => {
-
     const markAsReadNotification = await this.userdb.markAsReadNotification(req.user._id, res);
 
     new SuccessMsgResponse("success").send(res);

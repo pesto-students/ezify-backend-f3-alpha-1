@@ -8,7 +8,6 @@ import { connectDB, config, ApiError, BadRequestError, InternalError, NotFoundEr
 
 import { PATH, StatusCode } from "./config";
 
-
 const { ENVIRONMENT } = config;
 
 class App {
@@ -23,7 +22,6 @@ class App {
     this._initalizeMiddlewares();
     this._initalizeControllers(controllers);
     this._initalizeErrorHandling();
-    
   }
 
   private _connectToDatabase = () => {
@@ -97,7 +95,6 @@ class App {
     });
   };
 
-  
   /**
    * Starting the server
    */

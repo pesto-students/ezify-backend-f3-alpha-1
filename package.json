@@ -6,6 +6,7 @@
   "scripts": {
     "start:dev": "nodemon",
     "build": "rimraf ./build && tsc && cp package.json build/ && cp package-lock.json build/",
+    "updatePackage": "cd admin/ && npm run npm_update && cd .. && cd vendor/ && npm run npm_update && cd .. && cd users/ && npm run npm_update && cd .. && cd socket/ && npm run npm_update &&",
     "start": "npm run build && node build/server.js",
     "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'tests/**/*.ts' --timeout 10000",
     "docker:run": "docker-compose build && docker-compose up"

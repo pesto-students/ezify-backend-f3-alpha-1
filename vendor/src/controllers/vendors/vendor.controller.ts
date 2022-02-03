@@ -49,8 +49,8 @@ export class VendorController extends BaseController implements Controller {
     let newDetails = { ...req.body };    
     
     profileImage ? (newDetails.profileImage = profileImage[0].location) : req.user.profileImage;
-    adharCardImage ? (newDetails.adharCardImage = adharCardImage[0].location) : null;
-    panCardImage ? (newDetails.panCardImage = panCardImage[0].location) : null;
+    adharCardImage ? (newDetails.adharCardImage = adharCardImage[0].location) : req.user.adharCardImage;
+    panCardImage ? (newDetails.panCardImage = panCardImage[0].location) : req.user.panCardImage;
 
     const result = await this.db.updateVendor(req.user._id, newDetails, res);
     new SuccessResponse("success", result).send(res);

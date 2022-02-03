@@ -51,6 +51,7 @@ class App {
         req.url !== `${PATH}/security/decryption` &&
         req.url !== `${PATH}/logs/activityLogs` &&
         req.url !== `${PATH}/logs/errorActivityLogs` &&
+        !req.url.includes(`${PATH}/update_service`) &&
         (req.method === "POST" || req.method === "PATCH")
       ) {
         const result = Security.decryption(req.body.data);

@@ -14,7 +14,7 @@ interface UserDocument extends UsersInterface, Document {
 }
 
 interface UserModel extends Model<UserDocument> {
-  findByCredentials(email: string, role: string): Promise<UserDocument>;
+  findByCredentials(email: string, role: string, SENDGRID_API_KEY: any, SENDGRID_SENDER_EMAIL: any): Promise<UserDocument>;
   userOtpVerify(id: string, otp: string): Promise<UserDocument>;
 }
 
@@ -91,19 +91,19 @@ UserSchema.methods.generateAuthToken = async function () {
  * @param email email of the user
  * @returns user object with otpVerify property
  */
-UserSchema.statics.findByCredentials = async (email: string, role: string) => {
+UserSchema.statics.findByCredentials = async (email: string, role: string, SENDGRID_API_KEY: any, SENDGRID_SENDER_EMAIL: any) => {
   const user = await User.findOne({ email });
   const otp = generateOtp();
 
   if (!user) {
     const newUser = new User({ email, otpVerify: otp, roles: role });
-    // await sendMail(otp, email);
+    await sendMail(otp, email, SENDGRID_API_KEY, SENDGRID_SENDER_EMAIL);
     await newUser.save();
     return newUser;
   }
 
   user.otpVerify = otp;
-  // await sendMail(otp, email);
+  await sendMail(otp, email, SENDGRID_API_KEY, SENDGRID_SENDER_EMAIL);
   await user.save();
   return user;
 };

@@ -12,7 +12,7 @@
     "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'tests/**/*.ts' --timeout 10000"
   },
   "dependencies": {
-    "@ezzify/common": "^1.0.71",
+    "@ezzify/common": "^1.0.77",
     "amqplib": "^0.8.0",
     "axios": "^0.24.0",
     "class-transformer": "^0.5.1",

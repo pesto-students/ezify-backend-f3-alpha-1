@@ -1,11 +1,10 @@
 import "dotenv/config";
 
 import express from "express";
-import mongoose from "mongoose";
 import cors from "cors";
 import helmet from "helmet";
 import useragent from "express-useragent";
-import { connectDB, config, ApiError, BadRequestError, InternalError, NotFoundError, Security,Controller } from "@ezzify/common/build";
+import { connectDB, config, ApiError, BadRequestError, InternalError, NotFoundError, Security, Controller } from "@ezzify/common/build";
 
 import { PATH, StatusCode } from "./config";
 
@@ -51,7 +50,8 @@ class App {
         req.url !== `${PATH}/security/encryption` &&
         req.url !== `${PATH}/security/decryption` &&
         req.url !== `${PATH}/logs/activityLogs` &&
-        req.url !== `${PATH}/logs/errorActivityLogs`
+        req.url !== `${PATH}/logs/errorActivityLogs` &&
+        (req.method === "POST" || req.method === "PATCH")
       ) {
         const result = Security.decryption(req.body.data);
         if (result === StatusCode.INVALID_ENCRYPTED_INPUT) {

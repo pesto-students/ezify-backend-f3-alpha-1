@@ -51,7 +51,8 @@ class App {
         req.url !== `${PATH}/security/encryption` &&
         req.url !== `${PATH}/security/decryption` &&
         req.url !== `${PATH}/logs/activityLogs` &&
-        req.url !== `${PATH}/logs/errorActivityLogs`
+        req.url !== `${PATH}/logs/errorActivityLogs` &&
+        (req.method === "POST" || req.method === "PATCH")
       ) {
         const result = Security.decryption(req.body.data);
         if (result === StatusCode.INVALID_ENCRYPTED_INPUT) {

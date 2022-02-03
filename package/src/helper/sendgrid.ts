@@ -1,16 +1,16 @@
 // this should be move to package common
 
 import sgmail from "@sendgrid/mail";
-import { config } from "../config";
 
-export const sendMail = async (otp: string, email: string) => {
-  sgmail.setApiKey(config.SENDGRID_API_KEY); 
+export const sendMail = async (otp: string, email: string, SENDGRID_API_KEY: string, SENDGRID_SENDER_EMAIL: string) => {
+  console.log("from package", SENDGRID_API_KEY, SENDGRID_SENDER_EMAIL);
+  sgmail.setApiKey(SENDGRID_API_KEY);
 
   const message = {
     to: email,
     from: {
       name: "Ezzify",
-      email: config.SENDGRID_SENDER_EMAIL, 
+      email: SENDGRID_SENDER_EMAIL,
     },
     subject: "Verify OTP",
     text: "This is your OTP please verify yourself",
@@ -18,6 +18,7 @@ export const sendMail = async (otp: string, email: string) => {
   };
 
   const sendmail = await sgmail.send(message);
+  console.log(sendmail);
   if (sendmail) {
     return sendmail;
   } else return new Error("something went wrong!!");

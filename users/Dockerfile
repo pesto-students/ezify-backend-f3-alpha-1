@@ -8,9 +8,9 @@ RUN npm install
 
 RUN npm update @ezzify/common
 
-ENV SENDGRID_API_KEY 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
+ENV SENDGRID_API_KEY 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
 
-ENV SENDGRID_SENDER_EMAIL kawthekar56@gmail.com
+ENV SENDGRID_SENDER_EMAIL harshitsinghchouhan2018@gmail.com
 
 COPY . .
 

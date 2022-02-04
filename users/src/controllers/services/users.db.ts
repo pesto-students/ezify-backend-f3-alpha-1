@@ -59,12 +59,16 @@ export class UpdatedUsersDB {
         for (let booking of data.bookings) {
           const vendor: any = findVendor.find((x: any) => x._id == booking.vendorID);
 
+          console.log(vendor.services[0].serviceID);
+
           if (!vendor) {
             ApiError.handle(new BadRequestError("something went wrong with vendorID please check again."), res);
             return;
           }
 
           const service = vendor.services.find((x: any) => x.serviceID == booking.serviceID);
+
+          console.log(service);
 
           if (!service) {
             return ApiError.handle(new BadRequestError("no service found for this vendor!!"), res);

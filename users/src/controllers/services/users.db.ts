@@ -221,7 +221,7 @@ export class UpdatedUsersDB {
               "services.serviceID": data.serviceID,
             },
           ],
-        }).populate({ path: "services", populate: { path: "serviceID" } });
+        });
 
         // if (!vendors.length) {
         //   ApiError.handle(new BadRequestError("No vendors found for this service"), res);

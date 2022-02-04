@@ -27,7 +27,7 @@ export class AdminController extends BaseController implements Controller {
     this.router.post(`${this.path}/create_service`, upload.single("image"), auth(["admin"]), this.createServices);
     this.router.get(`${this.path}/view_service`, this.viewServices);
     this.router.patch(`${this.path}/update_service/:id`, upload.single("file"), auth(["admin"]), this.updateServices);
-    this.router.delete(`${this.path}/delete_service/:id`, validationMiddleware(DeleteServiceDto), auth(["admin"]), this.deleteService);
+    this.router.delete(`${this.path}/delete_service/:id`, auth(["admin"]), this.deleteService);
     this.router.post(`${this.path}/approve_vendor/:id`, validationMiddleware(IsApprovedDto), auth(["admin"]), this.approveVendor);
     this.router.get(`${this.path}/list_all_vendors`, auth(["admin"]), this.listAllVendors);
   };

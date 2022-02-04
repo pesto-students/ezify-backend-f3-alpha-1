@@ -56,6 +56,7 @@ export class UserController extends BaseController implements Controller {
     const { SENDGRID_API_KEY, SENDGRID_SENDER_EMAIL } = process.env;
 
     const result = await this.db.signupUser(email, role, SENDGRID_API_KEY, SENDGRID_SENDER_EMAIL, res);
+  
 
     new SuccessResponse("success", result).send(res);
   });

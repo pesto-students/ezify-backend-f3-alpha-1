@@ -33,6 +33,12 @@ class App {
    * A generic function to attach global level middlewares
    */
   private _initalizeMiddlewares = () => {
+    this.app.use(async (req, res, next) => {
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+      next();
+    });
+
     // SETTING REQUEST START TIME
     this.app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
       res.set("start", `${Date.now()}`);

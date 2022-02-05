@@ -2,7 +2,7 @@ import App from "./app";
 
 // import { UserController } from "./controllers/users/users.controller";
 
-const PORT = 4005;  
+const PORT = 5005;  
 
 // ATTACHING ALL THE CONTROLLERS
 const app = new App([

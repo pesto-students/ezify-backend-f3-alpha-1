@@ -1,0 +1,62 @@
+version: "3.4"
+services:
+  users:
+    build:
+      dockerfile: Dockerfile
+      context: ./users
+    container_name: user_service
+    ports:
+      - "4001:4001"
+    restart: always
+    volumes:
+      - .:/app
+      - /app/users/node_modules
+
+  admin:
+    build:
+      dockerfile: Dockerfile
+      context: ./admin
+    container_name: admin_service
+    ports:
+      - "4003:4003"
+    restart: always
+    volumes:
+      - .:/app
+      - /app/admin/node_modules
+
+  vendor:
+    build:
+      dockerfile: Dockerfile
+      context: ./vendor
+    container_name: vendor_service
+    ports:
+      - "4002:4002"
+    restart: always
+    volumes:
+      - .:/app
+      - /app/vendor/node_modules
+
+  socket:
+    build:
+      dockerfile: Dockerfile
+      context: ./socket
+    container_name: socket_service
+    ports:
+      - "4005:4005"
+    restart: always
+    volumes:
+      - .:/app
+      - /app/socket/node_modules
+
+  nginx-proxy:
+    build:
+      dockerfile: Dockerfile
+      context: ./proxy
+    depends_on:
+      - users
+      - vendor
+      - admin
+      - socket
+    ports:
+      - "80:80"
+    restart: always
